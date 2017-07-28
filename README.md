@@ -11,6 +11,7 @@ import pytesseract
 pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
 
 
+Adrian Rosebrock has a great tutorial on his site as well:  http://www.pyimagesearch.com/2017/07/10/using-tesseract-ocr-python/
 
 
 
