@@ -1,4 +1,17 @@
-# import the necessary packages
+# Steve Mitchell
+# UMD, College Park
+
+# Sign & License Plate Detection
+
+# Workflow:
+# 1. Read image
+# 2. Edge detection
+# 3. Use detected edges to identify region of image containing text
+# 4. Implement OCR to identify text
+
+####################################################
+
+# Import required packages
 from PIL import Image
 import pytesseract
 pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
@@ -9,43 +22,80 @@ import imutils
 
 print('Import successful' + '\n')
 
-# load image, resize as desired, and convert to grayscale
+####################################################
+
+# Initialize variables describing anticipated sign type
+# will use these descriptions for number of contour points
+stop = 8
+license = 4
+speed = 4
+outlet = 4
+yield_sign = 3
+
+####################################################
+
+# Load image, resize as desired, and convert to grayscale
 image = cv2.imread("speed_limit_04.jpg")
-# image = imutils.resize(image, height = 200)
+# Image = imutils.resize(image, height = 200)
 cv2.imshow("Original", image)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 cv2.imshow("Gray", gray)
 
-# threshold image
+# Find edges
+edged = cv2.Canny(gray, 30, 200)
+cv2.imshow("Edged", edged)
+
+# Find contours in the edged image, keep only the largest
+# ones, and initialize our screen contour
+cnts = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:10]
+screenCnt = None
+
+# Loop over our contours
+for c in cnts:
+    # Approximate the contour
+    peri = cv2.arcLength(c, True)
+    approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+
+    # If our approximated contour has x-points, then
+    # we can assume that we have found our screen
+    if len(approx) == outlet:
+        screenCnt = approx
+        break
+
+cv2.drawContours(image, [screenCnt], -1, (0, 255, 0), 3)
+cv2.imshow("Countours", image)
+
+# Threshold image
 gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 cv2.imshow("Threshold", gray)
 
-# invert image if desired
-# gray = cv2.bitwise_not(gray)
-# cv2.imshow("Flipped", gray)
+# Invert image if desired
+gray = cv2.bitwise_not(gray)
+cv2.imshow("Flipped", gray)
 
-# blur image to decrease noise
+# Blur image to decrease noise
 gray = cv2.medianBlur(gray, 3)
 cv2.imshow("Blurred", gray)
 
-# create temporary image to run OCR
+# Create temporary image to run OCR
 imagename = "{}.png".format(os.getpid())
 cv2.imwrite(imagename, gray)
 binary_image = Image.open(imagename)
 
-# identify text in image and print to console
+# Identify text in image and print to console
 text = pytesseract.image_to_string(binary_image)
 print(text)
 
-# remove image from folder (optional)
+# Remove image from folder (optional)
 os.remove(imagename)
 
-# create .txt file and store data
+# Create .txt file and store data
 f = open('output.txt', 'w')
 f.write(text + '\n')
 f.close()
 
-# confirm code ran as intended and wait for user to press any key
+# Confirm code ran to complettion & wait for user to press any key
 print('\n' + 'Good job - everything worked')
 cv2.waitKey(0)
 
