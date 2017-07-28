@@ -14,5 +14,9 @@ pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/te
 Adrian Rosebrock has a great tutorial on his site as well:  http://www.pyimagesearch.com/2017/07/10/using-tesseract-ocr-python/
 
 
+Background info: http://blog.ayoungprogrammer.com/2013/01/equation-ocr-part-1-using-contours-to.html/
+
+
+
 
 
