@@ -7,10 +7,10 @@ import cv2
 import os
 import imutils
 
-print('Import successful')
+print('Import successful' + '\n')
 
 # load image, resize as desired, and convert to grayscale
-image = cv2.imread("sample_01.jpg")
+image = cv2.imread("speed_limit_04.jpg")
 # image = imutils.resize(image, height = 200)
 cv2.imshow("Original", image)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -19,6 +19,10 @@ cv2.imshow("Gray", gray)
 # threshold image
 gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 cv2.imshow("Threshold", gray)
+
+# invert image if desired
+# gray = cv2.bitwise_not(gray)
+# cv2.imshow("Flipped", gray)
 
 # blur image to decrease noise
 gray = cv2.medianBlur(gray, 3)
@@ -42,7 +46,7 @@ f.write(text + '\n')
 f.close()
 
 # confirm code ran as intended and wait for user to press any key
-print('Good job - everything worked')
+print('\n' + 'Good job - everything worked')
 cv2.waitKey(0)
 
 
