@@ -15,7 +15,6 @@
 from PIL import Image
 import pytesseract
 pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
-import argparse
 import cv2
 import os
 import imutils
