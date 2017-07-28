@@ -7,6 +7,7 @@ You'll need to install Tesseract on your machine.  Recommend: https://github.com
 Once you import pytesseract, tell Python where Tesseract is located:
 
 import pytesseract
+
 pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
 
 
