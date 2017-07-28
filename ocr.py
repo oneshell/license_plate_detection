@@ -109,10 +109,14 @@ print(text)
 # Remove image from folder (optional)
 os.remove(imagename)
 
+####################################################
+
 # Create .txt file and store data
 f = open('output.txt', 'w')
 f.write(text + '\n')
 f.close()
+
+####################################################
 
 # Confirm code ran to complettion & wait for user to press any key
 print('\n' + 'Good job - everything worked')
