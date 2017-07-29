@@ -32,7 +32,7 @@ speed_sign = 4
 outlet_sign = 4
 yield_sign = 3
 
-points = speed_sign
+points = license_plate
 
 ####################################################
 
@@ -112,7 +112,7 @@ text = pytesseract.image_to_string(binary_image)
 print(text)
 
 # Remove image from folder (optional)
-# os.remove(imagename)
+os.remove(imagename)
 
 ####################################################
 
