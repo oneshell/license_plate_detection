@@ -32,6 +32,8 @@ speed_sign = 4
 outlet_sign = 4
 yield_sign = 3
 
+points = speed_sign
+
 ####################################################
 
 # Load image, resize as desired, and convert to grayscale
@@ -74,7 +76,7 @@ for c in cnts:
 
     # If our approximated contour has x-points, then
     # we can assume that we have found our screen
-    if len(approx) == speed_sign:
+    if len(approx) == points:
         screenCnt = approx
         break
 
