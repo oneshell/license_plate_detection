@@ -4,10 +4,10 @@
 # Sign & License Plate Detection
 
 # Workflow:
-# 1. Read image
-# 2. Grayscale, blur, & edge detection
-# 3. Use detected edges to identify region of image containing text
-# 4. Implement OCR to identify text
+# 1. Read in image
+# 2. Grayscale, blur, threshold, & edge detection
+# 3. Use detected edges to mask region of image containing text
+# 4. Implement OCR on masked image to identify text
 
 ####################################################
 
@@ -20,7 +20,7 @@ import os
 import imutils
 import numpy as np
 
-print('Import successful' + '\n')
+print('Import successful!' + '\n')
 
 ####################################################
 
@@ -35,18 +35,27 @@ yield_sign = 3
 ####################################################
 
 # Load image, resize as desired, and convert to grayscale
-image = cv2.imread("speed_limit_04.jpg")
-# Image = imutils.resize(image, height = 200)
-cv2.imshow("Original", image)
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-cv2.imshow("Gray", gray)
+original = cv2.imread("speed_limit_04.jpg")
+# original = imutils.resize(original, height = 200)
+cv2.imshow("Original Image", original)
+gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
+cv2.imshow("Grayscale", gray)
 
 # Blur image to decrease noise
-gray = cv2.medianBlur(gray, 3)
-cv2.imshow("Blurred", gray)
+blurred = cv2.medianBlur(gray, 3)
+cv2.imshow("Blurred", blurred)
+
+# Threshold image
+thres = cv2.threshold(blurred, 100, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+cv2.imshow("Threshold", thres)
+
+# Flip (invert) image if desired
+flipped = cv2.bitwise_not(thres)
+flipped = cv2.bitwise_not(flipped)  # flips back to original
+cv2.imshow("Flipped", flipped)
 
 # Find edges
-edged = cv2.Canny(gray, 30, 200)
+edged = cv2.Canny(flipped, 30, 200)
 cv2.imshow("Edged", edged)
 
 ####################################################
@@ -65,41 +74,35 @@ for c in cnts:
 
     # If our approximated contour has x-points, then
     # we can assume that we have found our screen
-    if len(approx) == outlet_sign:
+    if len(approx) == speed_sign:
         screenCnt = approx
         break
 
-cv2.drawContours(image, [screenCnt], -1, (0, 255, 0), 3)
-cv2.imshow("Countours", image)
+# Draw contours on original image
+contour = original.copy()
+cv2.drawContours(contour, [screenCnt], -1, (0, 255, 0), 3)
+cv2.imshow("Countoured", contour)
 
 ####################################################
 
-# create polygon (trapezoid) mask to select region of interest
-mask = np.zeros((image.shape[0], image.shape[1]), dtype="uint8")
-pts = np.array([screenCnt], dtype=np.int32)
-print(len(screenCnt))
-print(screenCnt)
-print(screenCnt.shape)
-# cv2.fillConvexPoly(mask, pts, 255)
-# cv2.imshow("Mask", mask)
-#
-# # apply mask and show masked image on screen
-# masked = cv2.bitwise_and(image, image, mask=mask)
-# cv2.imshow("Region of Interest", masked)
+# Create polygon mask to select region of interest for OCR
+mask = np.zeros((original.shape[0], original.shape[1]), dtype="uint8")
+pts = np.array(screenCnt, dtype=np.int32)
+# print(len(screenCnt))
+# print(screenCnt)
+
+cv2.fillConvexPoly(mask, pts, 255)
+cv2.imshow("Mask", mask)
+
+# Apply mask and show masked image on screen
+masked = cv2.bitwise_and(flipped, flipped, mask=mask)
+cv2.imshow("Region of Interest", masked)
 
 ####################################################
-
-# Threshold image
-gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-cv2.imshow("Threshold", gray)
-
-# Invert image if desired
-gray = cv2.bitwise_not(gray)
-cv2.imshow("Flipped", gray)
 
 # Create temporary image to run OCR
 imagename = "{}.png".format(os.getpid())
-cv2.imwrite(imagename, gray)
+cv2.imwrite(imagename, masked)
 binary_image = Image.open(imagename)
 
 # Identify text in image and print to console
@@ -107,7 +110,7 @@ text = pytesseract.image_to_string(binary_image)
 print(text)
 
 # Remove image from folder (optional)
-os.remove(imagename)
+# os.remove(imagename)
 
 ####################################################
 
